@@ -103,14 +103,15 @@ class EditDialog(QDialog):
         layout = QVBoxLayout()
 
         # Add student name widget
-        index = main_window.table.currentRow()
-        student_name = main_window.table.item(index,1)
+        self.index = main_window.table.currentRow()
+        self.id = main_window.table.item(self.index,0).text()
+        student = main_window.table.item(self.index,1).text()
         self.student_name = QLineEdit()
-        self.student_name.setText(student_name.text())
+        self.student_name.setText(student)
         layout.addWidget(self.student_name)
 
         # Add combo box of courses
-        course_name = main_window.table.item(index, 2)
+        course_name = main_window.table.item(self.index, 2)
         self.course_name = QComboBox()
         courses = ["Biology", "Math", "Astronomy", "Physics"]
         self.course_name.addItems(courses)
@@ -119,7 +120,7 @@ class EditDialog(QDialog):
         layout.addWidget(self.course_name)
 
         # Add mobile widget
-        mobile = main_window.table.item(index, 3).text()
+        mobile = main_window.table.item(self.index, 3).text()
         self.mobile = QLineEdit(mobile)
         self.mobile.setPlaceholderText("Mobile")
         layout.addWidget(self.mobile)
@@ -132,7 +133,17 @@ class EditDialog(QDialog):
         self.setLayout(layout)
 
     def update_student(self):
-        pass
+        connection = sqlite3.connect("database.db")
+        cursor = connection.cursor()
+        cursor.execute("UPDATE students SET name=?, course=?, mobile=? WHERE id=?",(self.student_name.text(),
+                                                                                    self.course_name.itemText(self.course_name.currentIndex()),
+                                                                                    self.mobile.text(),
+                                                                                    self.id))
+        connection.commit()
+        cursor.close()
+        connection.close()
+
+        main_window.load_data()
 
 class DeleteDialog(QDialog):
     def __init__(self):
@@ -210,7 +221,8 @@ class SearchDialog(QDialog):
         name = self.student_name.text()
         connection = sqlite3.connect("database.db")
         cursor = connection.cursor()
-        result = cursor.execute("SELECT * FROM students WHERE name = ?", (name,))
+        result = cursor.execute("SELECT * FROM students WHERE name = ?",
+                                (name,))
         row = list(result)[0]
         print(row)
         items = main_window.table.findItems(name, Qt.MatchFlag.MatchFixedString)
