@@ -148,7 +148,38 @@ class EditDialog(QDialog):
 class DeleteDialog(QDialog):
     def __init__(self):
         super().__init__()
-        pass
+        self.setWindowTitle("Delete Dialog")
+        self.setFixedWidth(300)
+        self.setFixedHeight(100)
+
+        self.layout = QVBoxLayout()
+
+        self.widget = QLabel("Are you sure?")
+        font = self.widget.font()
+        font.setPointSize(10)
+        self.widget.setFont(font)
+        self.widget.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignHCenter)
+        self.layout.addWidget(self.widget)
+
+        button = QPushButton("Yes")
+        button.clicked.connect(self.yes)
+        self.layout.addWidget(button)
+
+        button = QPushButton("No")
+        button.clicked.connect(self.no)
+        self.layout.addWidget(button)
+
+
+        self.setLayout(self.layout)
+
+    def yes(self):
+        connection = sqlite3.connect("database.db")
+        cursor = connection.cursor()
+        cursor.execute("")
+
+
+    def no(self):
+        self.close()
 
 class InsertDialog(QDialog):
     def __init__(self):
